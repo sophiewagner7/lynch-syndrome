@@ -1,6 +1,6 @@
-# Project title
+# Lynch Syndrome
 
-Description
+This project builds on work from Kastrinos et al. in "Gene-specific variation in colorectal cancer surveillance in patients with lynch syndrome" (2021). Link to repo for that project: https://github.com/CUMC-HIRE/lynch_syndrome
 
 --
 
@@ -14,8 +14,8 @@ sw3767@cumc.columbia.edu
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/sophiewagner7/setup.git
-cd setup
+git clone https://github.com/sophiewagner7/lynch-syndrome.git
+cd lynch-syndrome
 ```
 
 ### 2. Create virtual environment
@@ -48,7 +48,7 @@ python src/main.py
 Sophie Wagner
 sw3767@cumc.columbia.edu
 
-Project Link: [https://github.com/sophiewagner7/setup](https://github.com/sophiewagner7/setup)
+Project Link: [https://github.com/sophiewagner7/lynch-syndrome](https://github.com/sophiewagner7/lynch-syndrome)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
