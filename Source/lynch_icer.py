@@ -106,7 +106,7 @@ def costs_dist():
 
 def util_dist():
     
-    df_util = unif_dist(ps.utils_m.copy())
+    df_util = unif_dist(ps.UTILS_M.copy())
     
     return df_util
 
@@ -116,7 +116,7 @@ def util_dist():
     
 def calculate_utility_table(D_matrix, utility_table):
 #    if gender == 'male':
-#        utility_table = ps.utils_m.copy()
+#        utility_table = ps.UTILS_M.copy()
 #    else:
 
     utility_results = utility_table.copy()
@@ -840,7 +840,7 @@ def graph_eff_frontiers(full_df):
 
 
 def run_CEA():
-    utility = ps.utils_m.copy()
+    utility = ps.UTILS_M.copy()
 #    print(type(utility))
     cost = ps.costs.copy()
     df = generate_all_ce_tables(utility, cost)
@@ -922,7 +922,7 @@ def generate_icers_all_genes_prob(utility, cost, state_1, state_2, multiplier):
 
 
 def run_owsa_CEA_cost():
-    utility = ps.utils_m.copy()
+    utility = ps.UTILS_M.copy()
 #    print(type(utility))
     cost = add_bounds_to_df(ps.costs, "Cost")
 #   icer lists (make all code below more efficient)
@@ -1017,7 +1017,7 @@ def run_owsa_CEA_cost():
     return cost
 
 def run_owsa_CEA_csy():
-    utility = ps.utils_m.copy()
+    utility = ps.UTILS_M.copy()
 #    print(type(utility))
     cost = ps.costs.copy()
     columns  = ["du_csy", "du_csy_comp"]
@@ -1081,8 +1081,8 @@ def run_owsa_CEA_csy():
 
 
 def run_owsa_CEA_util():
-    columns = ps.utils_m.columns[6:16]
-    utility = add_bounds_to_df(ps.utils_m, columns)
+    columns = ps.UTILS_M.columns[6:16]
+    utility = add_bounds_to_df(ps.UTILS_M, columns)
 #    print(utility.columns)
 #    print(type(utility))
     cost = ps.costs.copy()
@@ -1100,7 +1100,7 @@ def run_owsa_CEA_util():
         print(col)
         bound_list = ["upper" , "lower"]
         for bound in bound_list:
-            utility = add_bounds_prob_to_df(ps.utils_m, columns)
+            utility = add_bounds_prob_to_df(ps.UTILS_M, columns)
             print(utility)
             if bound == "upper":
                 print(utility.loc[:, col + " UB"])
@@ -1129,7 +1129,7 @@ def run_owsa_CEA_util():
     return icer_df
 
 def run_owsa_CEA_prob():
-    utility = ps.utils_m.copy()
+    utility = ps.UTILS_M.copy()
 #    print(type(utility))
     cost = ps.costs.copy()
 #   icer lists (make all code below more efficient)
