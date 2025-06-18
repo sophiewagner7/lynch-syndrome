@@ -14,7 +14,7 @@ D_RATE = 0.03  # Discount rate
 GENES = ["MLH1", "MSH2", "MSH6", "PMS2"]  # Gene variants (cohorts)
 AGES = [25, 30, 35, 40]  # Starting surveillance ages
 INTERVALS = [1, 2, 3, 4, 5]  # Number of years between surveillance
-SEXES = ["male", "female", "both"]  # Sex
+SEXES = ["male", "female"]  # Sex
 ADH = 0.6  # Adherence rate
 WTP = 100000  # Willingness to pay threshold
 
@@ -98,4 +98,4 @@ init_tp_values = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
 init_tps = {transitions_idx[i]: init_tp_values[i] for i in range(len(transitions_idx))}
 
 
-acm_rate = {0: "male", 1: "female"}
+acm_rate = {"male": 0.1, "female": 0.1}
