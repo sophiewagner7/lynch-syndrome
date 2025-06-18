@@ -9,6 +9,7 @@ import numpy as np
 # Enums
 # -----------------------
 
+
 class StrategyType(Enum):
     NH = ("nh", "No screening")
     CURRENT = ("cur", "Current guideline (annual at 25)")
@@ -18,16 +19,19 @@ class StrategyType(Enum):
         self.code = code
         self.description = description
 
+
 class RunMode(Enum):
     """
     Enum for the different run modes of the model.
     """
+
     NH = "nh"
     CURRENT = "cur"
     EXPERIMENTAL = "exp"
     CALIBRATION = "calibration"
     ICER = "icer"
     PSA = "psa"
+
 
 # -----------------------
 # Global Settings
@@ -48,7 +52,7 @@ AGES = [25, 30, 35, 40]  # Starting surveillance ages
 INTERVALS = [1, 2, 3, 4, 5]  # Number of years between surveillance
 GENDERS = ["male", "female", "both"]  # Sex
 ADH = 0.6  # Adherence rate
-WTP = 100000 # Willingness to pay threshold
+WTP = 100000  # Willingness to pay threshold
 
 # -----------------------
 # Directory Structure
@@ -60,7 +64,7 @@ DUMP_DIR = SRC_DIR / "Dump"
 RESULTS_DIR = DUMP_DIR / "Results"
 GRAPHS_DIR = RESULTS_DIR / "Graphs"
 
-# Folders 
+# Folders
 OS_RESULTS_DIR = GRAPHS_DIR / "OS_Results"
 CRC_RESULTS_DIR = GRAPHS_DIR / "CRC_Results"
 CD_RESULTS_DIR = GRAPHS_DIR / "CD_Results"
@@ -81,7 +85,7 @@ MISC_DIR = SRC_DIR.parent / "Misc"
 params_male = DATA_DIR / "model_inputs.xlsx"
 params_female = DATA_DIR / "model_inputs.xlsx"
 
-# TODO: Identify what this risk is for
+# THESE WERE NOT USED AT ALL
 nh_risk_dict = {
     "MLH1": DATA_DIR / "Nono_MLH1.csv",
     "MLH2": DATA_DIR / "Nono_MSH2.csv",
@@ -189,19 +193,21 @@ CONNECTIVITY = {
     18: [16],
     19: [16],
     20: [16],
-    21: [16]
+    21: [16],
 }
 
 # -----------------------
 # Run Specification
 # -----------------------
 
+
 # class that gives the parameters for a certain run
 class RunSpec:
     """
     Class to hold the parameters for a specific run of the model.
     """
-    def __init__(self, interval: int, gene: str, gender: str, start_age: int=25):
+
+    def __init__(self, interval: int, gene: str, gender: str, start_age: int = 25):
         self.interval = interval
         self.gene = gene
         self.gender = gender
@@ -213,12 +219,12 @@ class RunSpec:
         self.label = f", CSY Q{self.interval}Y, Start Age: {self.start_age}"
         self.file_name = self.gene + self.label
 
-    def determine_strategy(self)-> str:
-        if self.interval == 0: 
+    def determine_strategy(self) -> str:
+        if self.interval == 0:
             return StrategyType.NH
         elif self.interval == 1:
             return StrategyType.CURRENT
-        else: 
+        else:
             return StrategyType.EXPERIMENTAL
 
 
@@ -245,8 +251,8 @@ risk_ratios = {
 colectomy_death_risk = [0.03, 0.08, 0.06]
 
 # Baseline risk?
-risk_adn_male_data = DATA_DIR / "Adenoma_Risk.csv" # only this is used
-risk_adn_female_data = DATA_DIR / "female_adenoma_risk.csv" # not found in code
+risk_adn_male_data = DATA_DIR / "Adenoma_Risk.csv"  # only this is used
+risk_adn_female_data = DATA_DIR / "female_adenoma_risk.csv"  # not found in code
 
 # Adenoma risk ratios (click et al)
 adv_adenoma_prob = 0.3625
@@ -291,8 +297,8 @@ dx_csy = costs.iloc[1, 0]
 # Utilities
 UTILS = pd.read_excel(params_male, "Utilities", index_col=0)
 # these are the same sheets with different names
-UTILS_F = pd.read_csv(DATA_DIR / "full_util_table_f.csv") # not used
-UTILS_M = pd.read_csv(DATA_DIR / "full_util_table_f.csv") # only used, why female?
+UTILS_F = pd.read_csv(DATA_DIR / "full_util_table_f.csv")  # not used
+UTILS_M = pd.read_csv(DATA_DIR / "full_util_table_f.csv")  # only used, why female?
 # only used in lynch_icer.py, not in running of markov.
 
 # Disutilities
@@ -339,10 +345,13 @@ PMS2_psa_strat = ["Q4Y, Start age: 40", "Q3Y, Start age: 40"]
 
 STRAT_LIST_PATH = DATA_DIR / "strat_list.npy"
 
+
 def make_strat_list():
     strat_list = [
         f"{gene} Q{intrvl}Y, Start age: {age}"
-        for gene in GENES for intrvl in INTERVALS for age in AGES
+        for gene in GENES
+        for intrvl in INTERVALS
+        for age in AGES
     ]
     np.save(STRAT_LIST_PATH, np.array(strat_list))
     return strat_list
