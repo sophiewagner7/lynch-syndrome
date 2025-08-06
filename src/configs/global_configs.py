@@ -1,11 +1,11 @@
 import numpy as np
 
 POPULATION_SIZE = 100_000
+START_AGE = 20
+END_AGE = 75
+NUM_YEARS = END_AGE - START_AGE  # years
 CYCLE_LENGTH = 1 / 12  # units = months
-NUM_YEARS = 50  # duration of the model
 NUM_CYCLES = NUM_YEARS / CYCLE_LENGTH  # years
-START_AGE = 25
-END_AGE = START_AGE + int(NUM_YEARS)
 
 time = range(int(NUM_CYCLES))  # Stages
 age_time = range(START_AGE, END_AGE)  # Ages
@@ -18,9 +18,13 @@ SEXES = ["male", "female"]  # Sex
 ADH = 0.6  # Adherence rate
 WTP = 100000  # Willingness to pay threshold
 
-AGE_LAYERS = np.arange(
-    START_AGE, END_AGE + 1, 5
-)  # Age layers for transition probabilities
+
+AGE_LAYERS = {
+    k: v
+    for k, v in zip(
+        np.arange(START_AGE, END_AGE, 5), range(len(range(START_AGE, END_AGE, 5)))
+    )
+}  # Age layers for transition probabilities age : index mapping
 
 # ---------------------------------------------------------------- #
 # MARKOV MODEL SETTINGS
