@@ -1,51 +1,56 @@
 import numpy as np
 
+# ---------------------------------------------------------------------------- #
+# GLOBAL PARAMETERS
+# ---------------------------------------------------------------------------- #
+
 POPULATION_SIZE = 100_000
 START_AGE = 20
 END_AGE = 75
+CYCLE_LENGTH = 1 / 12  # 1 month
 NUM_YEARS = END_AGE - START_AGE  # years
-CYCLE_LENGTH = 1 / 12  # units = months
-NUM_CYCLES = NUM_YEARS / CYCLE_LENGTH  # years
+NUM_CYCLES = int(NUM_YEARS / CYCLE_LENGTH)  # cycles
 
-time = range(int(NUM_CYCLES))  # Stages
+time = range(NUM_CYCLES)  # Cycles
 age_time = range(START_AGE, END_AGE)  # Ages
 
-D_RATE = 0.03  # Discount rate
-GENES = ["MLH1", "MSH2", "MSH6", "PMS2"]  # Gene variants (cohorts)
-AGES = [25, 30, 35, 40]  # Starting surveillance ages
-INTERVALS = [1, 2, 3, 4, 5]  # Number of years between surveillance
-SEXES = ["male", "female"]  # Sex
+D_RATE = 0.03  # Annual discount rate
+WTP = 100_000  # Willingness-to-pay threshold (per QALY)
 ADH = 0.6  # Adherence rate
-WTP = 100000  # Willingness to pay threshold
 
+# ---------------------------------------------------------------------------- #
+# COHORT SETTINGS
+# ---------------------------------------------------------------------------- #
 
-AGE_LAYERS = {
-    k: v
-    for k, v in zip(
-        np.arange(START_AGE, END_AGE, 5), range(len(range(START_AGE, END_AGE, 5)))
-    )
-}  # Age layers for transition probabilities age : index mapping
+GENES = ["MLH1", "MSH2", "MSH6", "PMS2"]
+SEXES = ["male", "female"]
+AGES = [25, 30, 35, 40]  # Surveillance start ages
+INTERVALS = [1, 2, 3, 4, 5]  # Surveillance intervals (years)
 
-# ---------------------------------------------------------------- #
-# MARKOV MODEL SETTINGS
-# ---------------------------------------------------------------- #
-all_states_itos = {
-    0: "healthy",  # healthy state
-    1: "lr_polyp",  # low-risk polyp
-    2: "hr_polyp",  # high-risk polyp
-    3: "u_stage_1",  # undiagnosed CRC stage I
-    4: "u_stage_2",  # undiagnosed CRC stage II
-    5: "u_stage_3",  # undiagnosed CRC stage III
-    6: "u_stage_4",  # undiagnosed CRC stage IV
-    7: "d_stage_1",  # diagnosed CRC stage I
-    8: "d_stage_2",  # diagnosed CRC stage II
-    9: "d_stage_3",  # diagnosed CRC stage III
-    10: "d_stage_4",  # diagnosed CRC stage IV
-    11: "death_cancer",  # death from cancer
-    12: "death_all_cause",  # all cause death
-    13: "death_colo",  # death from colonoscopy screening
+# Map age bands to indices (5-year increments)
+AGE_LAYERS = {age: idx for idx, age in enumerate(np.arange(START_AGE, END_AGE, 5))}
+
+# ---------------------------------------------------------------------------- #
+# HEALTH STATES
+# ---------------------------------------------------------------------------- #
+
+health_states_itos = {
+    0: "healthy",
+    1: "lr_polyp",
+    2: "hr_polyp",
+    3: "u_stage_1",
+    4: "u_stage_2",
+    5: "u_stage_3",
+    6: "u_stage_4",
+    7: "d_stage_1",
+    8: "d_stage_2",
+    9: "d_stage_3",
+    10: "d_stage_4",
+    11: "death_cancer",
+    12: "death_all_cause",
+    13: "death_colo",
 }
-all_states_stoi = {v: k for k, v in all_states_itos.items()}  # State mapping
+health_states_stoi = {v: k for k, v in health_states_itos.items()}
 
 alive_states = [
     "healthy",
@@ -61,45 +66,31 @@ alive_states = [
     "d_stage_4",
 ]
 death_states = ["death_cancer", "death_all_cause", "death_colo"]
-n_states = len(all_states_itos.keys())  # Total number of states
 
+# ---------------------------------------------------------------------------- #
+# TRANSITIONS TO CALIBRATE
+# ---------------------------------------------------------------------------- #
 
-# State Connectivity -------------------------
-
-transitions_idx = [
-    (0, 1),
-    (1, 2),
-    (2, 3),
-    (3, 4),
-    (4, 5),
-    (5, 6),
-    (3, 7),
-    (4, 8),
-    (5, 9),
-    (6, 10),
-]
-
-transitions_str = [
-    ("healthy", "LR_polyp"),
-    ("LR_polyp", "HR_polyp"),
-    ("HR_polyp", "u_CRC_loc"),
-    ("u_CRC_loc", "u_CRC_reg"),
-    ("u_CRC_reg", "u_CRC_dis"),
-    ("u_CRC_loc", "d_CRC_loc"),
-    ("u_CRC_reg", "d_CRC_reg"),
-    ("u_CRC_dis", "d_CRC_dis"),
-]
-
-transitions_itos = zip(transitions_idx, transitions_str)
-transitions_stoi = zip(transitions_str, transitions_idx)
-
-# TRANSITION PROBABILITIES
-tmat = {
-    gene: {sex: f"data/tmats/{gene}_{sex}_tmat.npy"} for gene in GENES for sex in SEXES
+calibration_tps_itos = {
+    (0, 1): ("healthy", "LR_polyp"),
+    (1, 2): ("LR_polyp", "HR_polyp"),
+    (2, 3): ("HR_polyp", "u_stage_1"),
+    (3, 4): ("u_stage_1", "u_stage_2"),
+    (4, 5): ("u_stage_2", "u_stage_3"),
+    (5, 6): ("u_stage_3", "u_stage_4"),
+    (3, 7): ("u_stage_1", "d_stage_1"),
+    (4, 8): ("u_stage_2", "d_stage_2"),
+    (5, 9): ("u_stage_3", "d_stage_3"),
+    (6, 10): ("u_stage_4", "d_stage_4"),
 }
+calibration_tps_stoi = {v: k for k, v in calibration_tps_itos.items()}
 
-init_tp_values = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
-init_tps = {transitions_idx[i]: init_tp_values[i] for i in range(len(transitions_idx))}
+# ---------------------------------------------------------------------------- #
+# REFERENCE COUNTS
+# ---------------------------------------------------------------------------- #
 
-
-acm_rate = {"male": 0.1, "female": 0.1}
+n_states = len(health_states_itos)
+n_genes = len(GENES)
+n_sexes = len(SEXES)
+n_age_layers = len(AGE_LAYERS)
+n_calibration_tps = len(calibration_tps_itos)
