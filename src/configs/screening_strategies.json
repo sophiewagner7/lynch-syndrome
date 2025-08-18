@@ -1,0 +1,42 @@
+{
+    "INTERDIGITATION_STRATS": {
+        "MLH1": [
+            {
+                "colo": {"interval": 2, "start_age": 25},
+                "alt_test": {"interval": 1, "start_age": 26, "test": "FIT"}
+            },
+            {
+                "colo": {"interval": 4, "start_age": 25},
+                "alt_test": {"interval": 2, "start_age": 26, "test": "sDNA"}
+            }
+        ],
+        "PMS2": [
+            {
+                "colo": {"interval": 2, "start_age": 35},
+                "alt_test": {"interval": 1, "start_age": 36, "test": "FIT"}
+            }
+        ]
+    },
+    "NONINTERDIGITATION_STRATS": {
+        "MLH1": [
+            {"colo": {"interval": 1, "start_age": 25}},
+            {"colo": {"interval": 2, "start_age": 25}},
+            {"colo": {"interval": 1, "start_age": 30}},
+            {"colo": {"interval": 2, "start_age": 30}}
+        ],
+        "MSH2": [
+            {"colo": {"interval": 1, "start_age": 25}},
+            {"colo": {"interval": 2, "start_age": 25}},
+            {"colo": {"interval": 1, "start_age": 30}},
+            {"colo": {"interval": 2, "start_age": 30}}
+        ],
+        "MSH6": [{"colo": {"interval": 5, "start_age": 30}}],
+        "PMS2": [{"colo": {"interval": 5, "start_age": 30}}]
+    },
+    "NH_STRATS": {
+        "MLH1": [{}],
+        "MSH2": [{}],
+        "MSH6": [{}],
+        "PMS2": [{}]
+    }
+}

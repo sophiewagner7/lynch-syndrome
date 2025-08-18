@@ -1,0 +1,50 @@
+{
+    "FIT": {
+        "sens_LRpolyp": 0.1,
+        "sens_HRpolyp": 0.2,
+        "sens_stage_1": 0.79,
+        "sens_stage_2": 0.79,
+        "sens_stage_3": 0.79,
+        "sens_stage_4": 0.79,
+        "spec": 0.95,
+        "fpr": 0.05,
+        "c_test": 20,
+        "du_test": 0,
+        "p_complication": 0,
+        "du_complication": 0,
+        "p_death_complication": 0,
+        "c_complication": 0
+    },
+    "Colo": {
+        "sens_LRpolyp": 0.1,
+        "sens_HRpolyp": 0.2,
+        "sens_stage_1": 0.79,
+        "sens_stage_2": 0.79,
+        "sens_stage_3": 0.79,
+        "sens_stage_4": 0.79,
+        "spec": 0.95,
+        "fpr": 0.05,
+        "c_test": 20,
+        "du_test": 0,
+        "p_complication": 0,
+        "du_complication": 0,
+        "p_death_complication": 0,
+        "c_complication": 0
+    },
+    "sDNA": {
+        "sens_LRpolyp": 0.1,
+        "sens_HRpolyp": 0.2,
+        "sens_stage_1": 0.79,
+        "sens_stage_2": 0.79,
+        "sens_stage_3": 0.79,
+        "sens_stage_4": 0.79,
+        "spec": 0.95,
+        "fpr": 0.05,
+        "c_test": 20,
+        "du_test": 0,
+        "p_complication": 0,
+        "du_complication": 0,
+        "p_death_complication": 0,
+        "c_complication": 0
+    }
+}
