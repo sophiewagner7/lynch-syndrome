@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import pandas as pd
 import numpy as np
@@ -7,10 +8,13 @@ import numpy as np
 # DEFINE PATHS
 # ---------------------------------------------------------------------------- #
 
-BASE_DIR = os.path.dirname(__file__)
-DATA_DIR = os.path.join(BASE_DIR, "..", "..", "data")
-LT_DIR = os.path.join(DATA_DIR, "lifetables")
-TARGET_DIR = os.path.join(DATA_DIR, "targets")
+HERE = Path(__file__).resolve()
+PROJECT_ROOT = HERE.parents[2]  # .../project_root
+SRC_DIR = HERE.parents[1]
+CONFIGS_DIR = HERE.parents[0]
+DATA_DIR = PROJECT_ROOT / "data"  # .../project_root/data
+LT_DIR = DATA_DIR / "lifetables"
+TARGET_DIR = DATA_DIR / "targets"
 
 # ---------------------------------------------------------------------------- #
 # LIFE TABLES
@@ -51,3 +55,7 @@ polyp_target = pd.read_csv(
 )
 polyp_targets_dict = polyp_target["value"].to_dict()
 # Example: polyp_targets_dict['MSH2'] → 0.45
+
+# ---------------------------------------------------------------------------- #
+# SCREENING STRATEGIES
+# ---------------------------------------------------------------------------- #
