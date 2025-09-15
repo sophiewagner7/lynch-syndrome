@@ -1,0 +1,16 @@
+{
+    "strategies": [
+        {
+            "id": "colo_q2_fit_q1_25",
+            "strategy_type": "Colo+Alt",
+            "colo": { "interval_years": 2, "start_age": 25, "test": "colo" },
+            "alt_test": { "interval_years": 1, "start_age": 26, "test": "FIT" }
+        },
+        {
+            "id": "colo_q3_fit_q1_25",
+            "strategy_type": "Colo+Alt",
+            "colo": { "interval_years": 3, "start_age": 25, "test": "colo" },
+            "alt_test": { "interval_years": 1, "start_age": 26, "test": "FIT" }
+        }
+    ]
+}

@@ -1,0 +1,28 @@
+{
+    "strategies": [
+        {
+            "id": "nh",
+            "strategy_type": "NH"
+        },
+        {
+            "id": "colo_q1_25",
+            "strategy_type": "Colo",
+            "colo": {"interval_years": 1, "start_age": 25, "test": "colo"}
+        },
+                {
+            "id": "colo_q1_30",
+            "strategy_type": "Colo",
+            "colo": {"interval_years": 1, "start_age": 30, "test": "colo"}
+        },
+        {
+            "id": "colo_q2_25",
+            "strategy_type": "Colo",
+            "colo": {"interval_years": 2, "start_age": 25, "test": "colo"}
+        },
+        {
+            "id": "colo_q2_30",
+            "strategy_type": "Colo",
+            "colo": {"interval_years": 2, "start_age": 30, "test": "colo"}
+        }
+    ]
+}
