@@ -6,7 +6,7 @@ import numpy as np
 
 POPULATION_SIZE = 100_000
 START_AGE = 20
-END_AGE = 75
+END_AGE = 85
 CYCLE_LENGTH = 1 / 12  # 1 month
 NUM_YEARS = END_AGE - START_AGE  # years
 NUM_CYCLES = int(NUM_YEARS / CYCLE_LENGTH)  # cycles
@@ -26,6 +26,7 @@ GENES = ["MLH1", "MSH2", "MSH6", "PMS2"]
 SEXES = ["male", "female"]
 SCREENING_START_AGES = [25, 30, 35, 40]  # Surveillance start ages
 SCREENING_INTERVALS = [1, 2, 3, 4, 5]  # Surveillance intervals (years)
+SCREENING_STOP_AGE = 75
 ALT_TESTS = ["FIT", "sDNA"]  # Non-colo tests for interdigitation
 
 # Map age bands to indices (5-year increments)
@@ -66,7 +67,32 @@ alive_states = [
     "d_stage_3",
     "d_stage_4",
 ]
+alive_states_idx = [health_states_stoi[state] for state in alive_states]
+
 death_states = ["death_cancer", "death_all_cause", "death_colo"]
+death_states_idx = [health_states_stoi[state] for state in death_states]
+
+screening_states = [
+    "healthy",
+    "lr_polyp",
+    "hr_polyp",
+    "u_stage_1",
+    "u_stage_2",
+    "u_stage_3",
+    "u_stage_4",
+]
+screening_states_idx = [health_states_stoi[state] for state in screening_states]
+
+detected_states = [
+    "d_stage_1",
+    "d_stage_2",
+    "d_stage_3",
+    "d_stage_4",
+]
+detected_states_idx = [health_states_stoi[state] for state in detected_states]
+
+nonscreening_states = list(set(health_states_itos.values()) - set(screening_states))
+nonscreening_states_idx = [health_states_stoi[state] for state in nonscreening_states]
 
 # ---------------------------------------------------------------------------- #
 # TRANSITIONS TO CALIBRATE
