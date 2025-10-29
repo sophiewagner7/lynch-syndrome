@@ -1,0 +1,29 @@
+{
+    "strategies": [
+        {
+            "id": "nh",
+            "strategy_type": "NH"
+        },
+        {
+            "id": "colo_q2_25",
+            "strategy_type": "Colo",
+            "colo": {"interval_years": 2, "start_age": 25, "test": "colo"}
+        },
+        {
+            "id": "colo_q4_fit_q2_25",
+            "strategy_type": "Colo+Alt",
+            "colo": { "interval_years": 4, "start_age": 25, "test": "colo" },
+            "alt_test": { "interval_years": 2, "start_age": 27, "test": "FIT" }
+        },
+        {
+            "id": "colo_q4_none_fit_fit_25",
+            "strategy_type": "Colo+Alt",
+            "annual": { "start_age": 25, "test_seq": ["colo", null, "FIT", "FIT"] }
+        },
+        {
+            "id": "colo_q4_fit_fit_fit_25",
+            "strategy_type": "Colo+Alt",
+            "annual": { "start_age": 25, "test_seq": ["colo", "FIT", "FIT", "FIT"] }
+        }
+    ]
+}

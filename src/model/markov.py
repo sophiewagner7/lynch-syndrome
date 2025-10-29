@@ -5,16 +5,14 @@ from typing import Optional, cast
 import numpy as np
 import pandas as pd
 
-from configs import global_configs as c
-from configs import strategy as strategy
-from configs import inputs
-from .runspec import RunSpec
+from configs import strategy, inputs, c
+from .cohort import Cohort
 
 
 @dataclass
 class MarkovModel:
 
-    def __init__(self, run_spec: RunSpec):
+    def __init__(self, strategy: strategy.Strategy, cohort: Cohort):
         """
         Arguments: run_spec (RunSpec): details of this run. Allows access to transition
         matrix and screening protocol.
@@ -38,38 +36,43 @@ class MarkovModel:
         - We only modify indices relevant to each operation using global indices from configs.
         """
 
-        self.spec = run_spec  # holds strategy and cohort
-        self.T = run_spec.tmat.transpose(0, 2, 1)
+        self.strategy = strategy  # holds strategy and cohort
+        self.cohort = cohort
+        self.T = cohort.tmat.transpose(0, 2, 1)
+        self.T = self.T.astype(np.float64)
+        self.cycles = c.NUM_CYCLES
 
         # Main vectors
-        self.D = np.zeros((self.spec.cycles, c.n_states), dtype=float)
-        self.I = np.zeros((self.spec.cycles, c.n_states), dtype=float)
+        self.D = np.zeros((self.cycles, c.n_states), dtype=np.float64)
+        self.I = np.zeros((self.cycles, c.n_states), dtype=np.float64)
         self.P = np.zeros_like(self.D)  # filled in normalize_distribution_vectors()
         self.R = np.zeros_like(self.I)  # filled in normalize_distribution_vectors()
 
         # Screening protocol, cycle flag
-        self.screening_protocol = self.spec.get_screening_protocol()
+        self.screening_protocol = self.strategy.get_screening_protocol()
         self.is_screening_cycle = False
-        tests = self.spec.strategy.tests() if not self.spec.strategy.is_NH else []
 
         # Logs
-        self.screening_log = (
-            pd.DataFrame(0.0, index=range(self.spec.cycles), columns=tests)
-            if tests
-            else pd.DataFrame()
+        self.screening_log = pd.DataFrame(
+            0.0, index=range(c.NUM_CYCLES), columns=c.ALL_TESTS
         )
         self.complications_log = pd.DataFrame(
             0.0,
-            index=range(self.spec.cycles),
+            index=range(c.NUM_CYCLES),
             columns=["colo_complications", "complication_deaths"],
         )
-        self.screen_detected = np.zeros((self.spec.cycles, 4), dtype=float)
-        self.symptom_detected = np.zeros((self.spec.cycles, 4), dtype=float)
+        self.screen_detected = np.zeros((c.NUM_CYCLES, 4), dtype=float)
+        self.symptom_detected = np.zeros((c.NUM_CYCLES, 4), dtype=float)
+
+    def __str__(self) -> str:
+        return f"{self.cohort.gene} {self.cohort.sex}: {self.strategy}"
 
     # ---------- helpers ----------
     def _update_screening_cycle(self, t) -> None:
         """Update screening cycle flag based on current time step."""
-        self.is_screening_cycle = self.screening_protocol[t] is not None
+        self.is_screening_cycle = (t < len(self.screening_protocol)) and (
+            self.screening_protocol[t] is not None
+        )
 
     def _apply_colonoscopy_complications(
         self, population: np.ndarray, t: int, is_screening: bool = False
@@ -95,7 +98,7 @@ class MarkovModel:
             - Updates self.complications_log.
         """
         state_idx = c.health_states_stoi
-        colo_specs = inputs.SCREENING_TEST_SPECS["colo"]
+        colo_specs = inputs.SCREENING_TEST_SPECS.loc["colo"]
 
         # States that may experience colo complications in this call
         colo_risk_idx = (
@@ -154,9 +157,9 @@ class MarkovModel:
 
         # Get colonoscopy specs based on colo application type
         colo_specs = (
-            inputs.SCREENING_TEST_SPECS["colo_followup"]
+            inputs.SCREENING_TEST_SPECS.loc["colo_followup"]
             if followup
-            else inputs.SCREENING_TEST_SPECS["colo"]
+            else inputs.SCREENING_TEST_SPECS.loc["colo"]
         )
 
         # --- Complications ---
@@ -198,7 +201,9 @@ class MarkovModel:
             self.D[t, d_state_idx] += screen_detect
             self.I[t, d_state_idx] += screen_detect
 
-    def _apply_alternative_test(self, test: str, population: np.ndarray, t: int):
+    def _apply_alternative_test(
+        self, test: str, population: np.ndarray, t: int
+    ) -> np.ndarray:
         """
         Apply a non-colonoscopy screening test (e.g., FIT) and return GLOBAL positives.
 
@@ -214,28 +219,30 @@ class MarkovModel:
         Returns:
             np.ndarray: GLOBAL-length vector of test positives (mass only in screening states).
         """
-        s = c.health_states_stoi
-        test_specs = inputs.SCREENING_TEST_SPECS[test]
+        state_idx = c.health_states_stoi
+        test_specs = inputs.SCREENING_TEST_SPECS.loc[test]
 
-        # Log number of people screened at time t for this test
+        # Log screened this cycle (mass in screening states)
+        self.screening_log.at[t, test] = population[c.screening_states_idx].sum()
 
-        screening_pop = population[c.screening_states_idx]
-        self.screening_log.at[t, test] = screening_pop.sum()
-        positives = np.zeros(len(screening_pop))
-        positives[s["healthy"]] = population[s["healthy"]] * test_specs["fpr"]
-        positives[s["lr_polyp"]] = (
-            population[s["lr_polyp"]] * test_specs["sens_lr_polyp"]
+        positives = np.zeros_like(population)  # GLOBAL length
+
+        # Healthy false positives
+        positives[state_idx["healthy"]] = (
+            population[state_idx["healthy"]] * test_specs["fpr"]
         )
-        positives[s["hr_polyp"]] = (
-            population[s["hr_polyp"]] * test_specs["sens_hr_polyp"]
+        # True positives in neoplasia / preclinical cancer
+        positives[state_idx["lr_polyp"]] = (
+            population[state_idx["lr_polyp"]] * test_specs["sens_lr_polyp"]
+        )
+        positives[state_idx["hr_polyp"]] = (
+            population[state_idx["hr_polyp"]] * test_specs["sens_hr_polyp"]
         )
         for i in range(4):
-            positives[s[f"u_stage_{i+1}"]] = (
-                population[s[f"u_stage_{i+1}"]] * test_specs[f"sens_stage_{i+1}"]
-            )
+            u = state_idx[f"u_stage_{i+1}"]
+            positives[u] = population[u] * test_specs[f"sens_stage_{i+1}"]
 
-        # Return vector length n_states with those who tested positive
-        return positives
+        return positives  # GLOBAL-length
 
     def _apply_screening(self, t: int) -> None:
         """
@@ -267,23 +274,34 @@ class MarkovModel:
         Normalize the distribution vectors to ensure they sum to 1.
         This is done for both the distribution and incidence vectors.
         """
+
+        self.D = np.round(self.D, 1)
+        self.I = np.round(self.I, 1)
+
         # Incidence and prevalence denominator is out of living population
-        dead_factor = np.divide(
-            c.POPULATION_SIZE,
-            (c.POPULATION_SIZE - self.D[len(c.alive_states)].sum(axis=0)),
-        )
+        alive_pop = self.D[:, c.alive_states_idx].sum(
+            axis=1, keepdims=True
+        )  # shape (T,1)
+        dead_factor = np.divide(c.POPULATION_SIZE, np.maximum(alive_pop, 1e-12))
+
         self.P = np.zeros_like(self.D)
         self.R = self.I.copy()
-        for state in range(c.n_states):
-            if c.health_states_itos[state] in c.alive_states:
-                self.P[:, state] = np.multiply(self.D[:, state], dead_factor)
-                self.R[:, state] = np.multiply(self.R[:, state], dead_factor)
 
+        self.P[:, c.alive_states_idx] = np.multiply(
+            self.D[:, c.alive_states_idx], dead_factor
+        )
+        self.R[:, c.alive_states_idx] = np.multiply(
+            self.R[:, c.alive_states_idx], dead_factor
+        )
+
+        T = c.NUM_CYCLES
+        assert T % 12 == 0, "NUM_CYCLES must be multiple of 12 for reshaping"
+        years = T // 12
         # Transform into annual counts. For incidence, we sum; for prevalence, we average.
-        self.Iy = self.I.reshape(c.NUM_YEARS, 12, c.n_states).sum(axis=1)
-        self.Ry = self.I.reshape(c.NUM_YEARS, 12, c.n_states).sum(axis=1)
-        self.Dy = self.D.reshape(c.NUM_YEARS, 12, c.n_states).mean(axis=1)
-        self.Py = self.I.reshape(c.NUM_YEARS, 12, c.n_states).mean(axis=1)
+        self.Iy = self.I.reshape(years, 12, c.n_states).sum(axis=1)
+        self.Ry = self.R.reshape(years, 12, c.n_states).sum(axis=1)
+        self.Dy = self.D.reshape(years, 12, c.n_states).mean(axis=1)
+        self.Py = self.P.reshape(years, 12, c.n_states).mean(axis=1)
 
     # ---------- main run ----------
     def run_markov(self) -> None:
@@ -302,37 +320,69 @@ class MarkovModel:
         start_state[s["healthy"]] = c.POPULATION_SIZE
         self.D[0] = start_state
 
-        self.curr_age = self.spec.model_start_age
+        self.curr_age = c.START_AGE
         self.curr_age_layer = 0
         t = 1
+
+        # Check matrix is good
+        for layer in range(self.T.shape[0]):
+            col_sums = self.T[layer].sum(axis=0)
+            if not np.allclose(col_sums, 1.0, atol=1e-12):
+                self.T[layer] /= col_sums
 
         inflow_T = np.tril(self.T, k=-1)  # to capture only inflows
 
         # Initialize screening-cycle flag for t=1
         self._update_screening_cycle(t)
 
-        while t <= self.spec.cycles:
+        while t <= c.NUM_CYCLES:
 
             # Apply state transtion matrix to get new pop distribution and incidence
             # (n_states x n_states) * (n_states x 1) -> (n_states x 1)
-            self.D[t] = self.T[self.curr_age_layer, :, :] @ self.D[t - 1]
-            self.I[t] = inflow_T[self.curr_age_layer, :, :] @ self.D[t - 1]
+            self.D[t] = self.T[self.curr_age_layer] @ self.D[t - 1]
+            self.I[t] = inflow_T[self.curr_age_layer] @ self.D[t - 1]
+
+            self.D[t] = np.maximum(self.D[t], 0.0)
+            self.I[t] = np.maximum(self.I[t], 0.0)
 
             # Symptom-detected cancers this cycle (detected states inflow)
-            newly_detected = self.I[t, c.detected_states_idx].copy()  # length 4
-            self.symptom_detected[t] = newly_detected
+            self.symptom_detected[t] = self.I[t, c.detected_states_idx]
 
             # Complications for those newly symptom-detected (retroactive colo)
             # Build a GLOBAL vector placing newly_detected mass into detected indices
+            mass_before = self.D[t].sum()
             newly_detected_global = np.zeros_like(self.I[t])
-            newly_detected_global[c.detected_states_idx] = newly_detected
+            newly_detected_global[c.detected_states_idx] = self.I[
+                t, c.detected_states_idx
+            ]
             _ = self._apply_colonoscopy_complications(
                 newly_detected_global, t, is_screening=False
             )
+            mass_after = self.D[t].sum()
+            if not np.isclose(mass_before, mass_after, atol=1e-8):
+                logging.warning(
+                    f"Mass change after applying symptom-detected colo complications at t={t}: {mass_after - mass_before:.6f}"
+                )
 
             # Apply screening if applicable
-            if not self.spec.strategy.is_NH and self.is_screening_cycle:
+            mass_before = self.D[t].sum()
+            if not self.strategy.is_NH and self.is_screening_cycle:
                 self._apply_screening(t)
+            mass_after = self.D[t].sum()
+            if not np.isclose(mass_before, mass_after, atol=1e-8):
+                logging.warning(
+                    f"Mass change after screening at t={t}: {mass_after - mass_before:.6f}"
+                )
+
+            # Stabilize
+            self.D[t] = np.maximum(self.D[t], 0.0)
+            self.I[t] = np.maximum(self.I[t], 0.0)
+
+            # Check that population remains same
+            total_pop = self.D[t].sum()
+            if not np.isclose(total_pop, c.POPULATION_SIZE, atol=1e-6):
+                logging.warning(f"Mass not conserved at t={t}: {total_pop}")
+                self.D[t] *= c.POPULATION_SIZE / total_pop
 
             # Advance time
             t += 1
@@ -347,5 +397,9 @@ class MarkovModel:
 
             # Update screen-cycle flag for next t
             self._update_screening_cycle(t)
+
+        assert np.all(
+            np.diff(self.D[:, c.health_states_stoi["death_all_cause"]]) >= -1e-6
+        )
 
         self.normalize_distribution_vectors()

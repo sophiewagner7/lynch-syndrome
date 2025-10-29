@@ -1,0 +1,2 @@
+gene,Strategy,csy interval,csy start age,run type,QALYs,Life-years,CRC incidence,CRC death,cost,colonoscopies,csy comps,ICERs
+MLH1,"Q2Y, Start age: 25",2,25,D_matrix_MLH1_2_25_both_genders.csv,29.526754639486906,46.40816012122342,0.1733704969698315,0.02750255322853773,23992.477631657628,31.066158613813865,0.029106237563071125,0.0

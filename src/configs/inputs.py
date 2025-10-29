@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-import configs.global_configs as c
+from configs import global_configs as c
 
 # ---------------------------------------------------------------------------- #
 # DEFINE PATHS
@@ -34,30 +34,89 @@ lt_1y = pd.read_csv(LT_DIR / "lifetable_1y.csv", index_col=0)
 # ---------------------------------------------------------------------------- #
 
 # CRC incidence ---------------------------------------------------------------
-# CRC incidence targets by gene and sex (age-specific, annual incidence)
-# MultiIndex columns: (gene, sex) — e.g., incidence_target['MLH1']['female']
-incidence_target = pd.read_csv(
-    TARGET_DIR / "crc_incidence_1y_to85.csv", index_col=0, header=[0, 1]
+
+# CRC cumulative incidence to age 75 ------------------------------------------
+# By: gene, sex, age
+# Source: Dominguez (PLSD)
+incidence_cumulative_target = pd.read_csv(
+    TARGET_DIR / "crc_incidence_cumulative_to_75.csv", index_col=["gene", "sex"]
 )
-# Example: incidence_target['MLH1']['male'] → incidence by age
+
+# CRC cumulative incidence (CURVE, diff between above vals) to age 75 --------
+# Source: Dominguez (PLSD)
+incidence_cumulative_curve_target = pd.read_csv(
+    TARGET_DIR / "crc_incidence_curve_to_75.csv", index_col=["gene", "sex"]
+)
+
+# CRC incidence by age 65 ----------------------------------------------------
+# By: gene, sex
+# Source: Dominguez (PLSD)
+incidence_by_65_target = pd.read_csv(
+    TARGET_DIR / "crc_incidence_by_65.csv", index_col=["gene", "sex"]
+)
+
+# CRC incidence by age 70 ----------------------------------------------------
+# By: gene, sex
+# Source: Wang / NCCN
+incidence_by_70_target = pd.read_csv(
+    TARGET_DIR / "crc_incidence_by_70.csv", index_col=["gene", "sex"]
+)
+
+# CRC incidence by age 80 ----------------------------------------------------
+# By: gene
+# Source: NCCN
+incidence_by_80_target = pd.read_csv(
+    TARGET_DIR / "crc_incidence_by_80.csv", index_col="gene"
+)
+incidence_by_80_target["lower"] /= 100.0
+incidence_by_80_target["upper"] /= 100.0
+
+# CRC median age at diagnosis ------------------------------------------------
+# By: gene
+# Source: NCCN
+median_age_at_dx_target = pd.read_csv(
+    TARGET_DIR / "crc_median_age.csv", index_col="gene"
+)
 
 # CRC stage distribution at diagnosis ----------------------------------------
-# CRC stage distribution at diagnosis (proportion of cases by stage)
-# DataFrame columns: ['stage', 'value']
-stage_dist_target = pd.read_csv(TARGET_DIR / "stage_distribution.csv", index_col=0)
-stage_dist_target_dict = stage_dist_target["value"].to_dict()
-# Example: stage_dist_target_dict['stage_1'] → 0.40
+
+# CRC stage distribution from SEER -------------------------------------------
+# Average risk population stage distribution used
+# Source: SEER
+stage_dist_target = pd.read_csv(
+    TARGET_DIR / "stage_distribution.csv", index_col="stage"
+)
 
 # Polyp prevalence -----------------------------------------------------------
-# Polyp prevalence targets by gene (cumulative incidence by age 60)
-# DataFrame columns: ['gene', 'value']
-polyp_target = pd.read_csv(TARGET_DIR / "adenoma_risk_age60.csv", index_col=0)
-polyp_targets_dict = polyp_target["value"].to_dict()
-# Example: polyp_targets_dict['MSH2'] → 0.45
+
+# Polyp incidence by age 65 --------------------------------------------------
+# By: gene
+# Source: Myles
+polyp_target = pd.read_csv(TARGET_DIR / "adenoma_risk_age60.csv", index_col="gene")
+
+# Polyp cumulative risk to age 70 --------------------------------------------
+# By: sex, age
+# Source: Mecklin
+polyp_cumulative_target = pd.read_csv(
+    TARGET_DIR / "adenoma_risk_cumulative_to_70.csv", index_col=["sex", "age"]
+)
+
+# Other ----------------------------------------------------------------------
+# Checkpoint CRC, adenoma, adv adenoma dev at first colo (no prev)
+# By: gene
+# Source: Governe 2020
+first_colo_target = pd.read_csv(
+    TARGET_DIR / "crc_aden_first_colo_checkpoint.csv", index_col=["gene"]
+)
+adn_dwell_target = pd.read_csv(TARGET_DIR / "adn_dwell_time.csv", index_col=["gene"])
+
 
 # ---------------------------------------------------------------------------- #
 # SCREENING TEST SPECS
 # ---------------------------------------------------------------------------- #
 
-with open(CONFIGS_DIR / "screening_test_specs.json", "r") as f:
-    SCREENING_TEST_SPECS = json.load(f)
+screening_specs_df = pd.read_csv(
+    DATA_DIR / "screening_test_specs.csv", index_col=["test", "variable"]
+)
+# Only need estimate -- not using upper and lower bounds currently
+SCREENING_TEST_SPECS = screening_specs_df.loc[:, "estimate"]

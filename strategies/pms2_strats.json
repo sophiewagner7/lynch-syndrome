@@ -1,16 +1,99 @@
 {
     "strategies": [
         {
-            "id": "colo_q2_fit_q1_25",
-            "strategy_type": "Colo+Alt",
-            "colo": { "interval_years": 2, "start_age": 25, "test": "colo" },
-            "alt_test": { "interval_years": 1, "start_age": 26, "test": "FIT" }
+            "id": "nh",
+            "strategy_type": "NH"
         },
         {
-            "id": "colo_q3_fit_q1_25",
+            "id": "colo_q2_25",
+            "strategy_type": "Colo",
+            "colo": {"interval_years": 2, "start_age": 25, "test": "colo"}
+        },
+        {
+            "id": "fit_q2_25",
+            "strategy_type": "Alt",
+            "alt_test": {"interval_years": 2, "start_age": 25, "test": "FIT"}
+        },
+        {
+            "id": "colo_q2_30",
+            "strategy_type": "Colo",
+            "colo": {"interval_years": 2, "start_age": 30, "test": "colo"}
+        },
+        {
+            "id": "colo_q2_35",
+            "strategy_type": "Colo",
+            "colo": {"interval_years": 2, "start_age": 35, "test": "colo"}
+        },
+            {
+            "id": "colo_q3_25",
+            "strategy_type": "Colo",
+            "colo": {"interval_years": 3, "start_age": 25, "test": "colo"}
+        },
+        {
+            "id": "colo_q3_30",
+            "strategy_type": "Colo",
+            "colo": {"interval_years": 3, "start_age": 30, "test": "colo"}
+        },
+        {
+            "id": "colo_q3_35",
+            "strategy_type": "Colo",
+            "colo": {"interval_years": 3, "start_age": 35, "test": "colo"}
+        },
+        {
+            "id": "colo_q4_fit_q2_25",
             "strategy_type": "Colo+Alt",
-            "colo": { "interval_years": 3, "start_age": 25, "test": "colo" },
-            "alt_test": { "interval_years": 1, "start_age": 26, "test": "FIT" }
+            "colo": { "interval_years": 4, "start_age": 25, "test": "colo" },
+            "alt_test": { "interval_years": 2, "start_age": 27, "test": "FIT" }
+        },
+        {
+            "id": "colo_q4_fit_q2_30",
+            "strategy_type": "Colo+Alt",
+            "colo": { "interval_years": 4, "start_age": 30, "test": "colo" },
+            "alt_test": { "interval_years": 2, "start_age": 32, "test": "FIT" }
+        },
+        {
+            "id": "colo_q4_fit_q2_35",
+            "strategy_type": "Colo+Alt",
+            "colo": { "interval_years": 4, "start_age": 35, "test": "colo" },
+            "alt_test": { "interval_years": 2, "start_age": 37, "test": "FIT" }
+        },
+        {
+            "id": "colo_q6_fit_q3_25",
+            "strategy_type": "Colo+Alt",
+            "colo": { "interval_years": 6, "start_age": 25, "test": "colo" },
+            "alt_test": { "interval_years": 3, "start_age": 28, "test": "FIT" }
+        },
+        {
+            "id": "colo_q6_fit_q3_30",
+            "strategy_type": "Colo+Alt",
+            "colo": { "interval_years": 6, "start_age": 30, "test": "colo" },
+            "alt_test": { "interval_years": 3, "start_age": 33, "test": "FIT" }
+        },
+        {
+            "id": "colo_q6_fit_q3_35",
+            "strategy_type": "Colo+Alt",
+            "colo": { "interval_years": 6, "start_age": 35, "test": "colo" },
+            "alt_test": { "interval_years": 3, "start_age": 38, "test": "FIT" }
+        },
+        {
+            "id": "colo_q4_none_fit_fit_25",
+            "strategy_type": "Colo+Alt",
+            "annual": { "start_age": 25, "test_seq": ["colo", null, "FIT", "FIT"] }
+        },
+        {
+            "id": "colo_q4_none_fit_fit_30",
+            "strategy_type": "Colo+Alt",
+            "annual": { "start_age": 30, "test_seq": ["colo", null, "FIT", "FIT"] }
+        },
+        {
+            "id": "colo_q4_fit_fit_fit_25",
+            "strategy_type": "Colo+Alt",
+            "annual": { "start_age": 25, "test_seq": ["colo", "FIT", "FIT", "FIT"] }
+        },
+        {
+            "id": "colo_q4_fit_fit_fit_30",
+            "strategy_type": "Colo+Alt",
+            "annual": { "start_age": 30, "test_seq": ["colo", "FIT", "FIT", "FIT"] }
         }
     ]
 }

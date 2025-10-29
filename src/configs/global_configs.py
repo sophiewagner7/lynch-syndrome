@@ -25,9 +25,10 @@ ADH = 0.6  # Adherence rate
 GENES = ["MLH1", "MSH2", "MSH6", "PMS2"]
 SEXES = ["male", "female"]
 SCREENING_START_AGES = [25, 30, 35, 40]  # Surveillance start ages
-SCREENING_INTERVALS = [1, 2, 3, 4, 5]  # Surveillance intervals (years)
+SCREENING_INTERVALS = [1, 2, 3, 4, 5, 6]  # Surveillance intervals (years)
 SCREENING_STOP_AGE = 75
-ALT_TESTS = ["FIT", "sDNA"]  # Non-colo tests for interdigitation
+ALL_TESTS = ["colo", "FIT"]
+ALT_TESTS = ["FIT"]  # Non-colo tests for interdigitation
 
 # Map age bands to indices (5-year increments)
 AGE_LAYERS = {age: idx for idx, age in enumerate(np.arange(START_AGE, END_AGE, 5))}
