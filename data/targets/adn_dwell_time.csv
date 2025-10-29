@@ -1,0 +1,5 @@
+gene,med_yrs,iqr_lower_yrs,iqr_upper_yrs,range_lower_yrs,range_upper_yrs,n,med_age,iqr_lower_age,iqr_upper_age
+MLH1,4,2,8,0,24,36,49,41,60
+MSH2,3,1,6,0,17,42,49,46,67
+MSH6,3,2,6,0,14,97,49,53,68
+PMS2,1,1,4,0,6,16,49,38,59

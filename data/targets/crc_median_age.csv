@@ -1,0 +1,5 @@
+gene,value,lower,upper,refs
+MLH1,44,,,103
+MSH2,44,,,103
+MSH6,,42,69,103
+PMS2,,61,66,103
