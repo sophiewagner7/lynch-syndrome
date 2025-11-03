@@ -122,3 +122,5 @@ n_genes = len(GENES)
 n_sexes = len(SEXES)
 n_age_layers = len(AGE_LAYERS)
 n_calibration_tps = len(calibration_tps_itos)
+
+GENE2IDX = {gene: idx for gene, idx in zip(GENES, range(n_genes))}

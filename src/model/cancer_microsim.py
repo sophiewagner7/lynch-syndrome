@@ -28,7 +28,7 @@ csds = [csd_1, csd_2, csd_3, csd_4]
 def run_cancer_microsim(model: MarkovModel, seed=42) -> pd.DataFrame:
 
     newly_diagnosed = model.I[:, 7:11]
-    acm = inputs.lt_1y[f"prob_death_{model.spec.sex}_m"]
+    acm = inputs.lt_1y[f"prob_death_{model.cohort.sex}_m"]
     out_rows = []
     id = 0
     for t in range(c.NUM_CYCLES):
@@ -89,8 +89,8 @@ def run_cancer_microsim(model: MarkovModel, seed=42) -> pd.DataFrame:
                 out_rows.append(
                     {
                         "id": int(id),
-                        "gene": model.spec.gene,
-                        "sex": model.spec.sex,
+                        "gene": model.cohort.gene,
+                        "sex": model.cohort.sex,
                         "stage": stage + 1,
                         "age_dx": int(age_dx),
                         "cycle_dx": int(t),

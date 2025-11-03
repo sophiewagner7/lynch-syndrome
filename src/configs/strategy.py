@@ -128,6 +128,7 @@ class Strategy:
         Generate screening protocol based on strategy specifications.
         Assumes monthly cycles.
         Returns a list of length equal to number of cycles with screening tests name or None.
+        [None, None, ..., "colo",...] (length = number of cycles)
         """
         # Initialize protocol list with None (no screening)
         protocol: List[Optional[str]] = [None] * c.NUM_CYCLES
